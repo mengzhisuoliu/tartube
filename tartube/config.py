@@ -26211,7 +26211,7 @@ class SystemPrefWin(GenericPrefWin):
                 _('Download video clips using yt-dlp'),
                 1, 6, 1, 1,
             )
-            if self.app_obj.video_timestamps_dl_mode == 'downloader':
+            if self.app_obj.video_timestamps_clip_mode == 'downloader':
                 radiobutton2.set_active(True)
 
             # (Signal connects from above)
@@ -29655,9 +29655,9 @@ class SystemPrefWin(GenericPrefWin):
         """
 
         if radiobutton.get_active():
-            self.app_obj.set_video_timestamps_dl_mode('ffmpeg')
+            self.app_obj.set_video_timestamps_clip_mode('ffmpeg')
         else:
-            self.app_obj.set_video_timestamps_dl_mode('downloader')
+            self.app_obj.set_video_timestamps_clip_mode('downloader')
 
 
     def on_close_to_tray_toggled(self, checkbutton, checkbutton2):

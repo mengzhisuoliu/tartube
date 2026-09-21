@@ -20039,6 +20039,7 @@ class MainWin(Gtk.ApplicationWindow):
                     insert_list.append(mini_list)
 
             # Update IVs
+            self.app_obj.set_video_timestamps_clip_mode(clip_mode)
             self.app_obj.add_temp_stamp_buffer_dict(
                 media_data_obj.dbid,
                 insert_list,
@@ -20066,7 +20067,7 @@ class MainWin(Gtk.ApplicationWindow):
                     insert_list.append(mini_list)
 
             # Update IVs
-            self.app_obj.set_video_timestamps_dl_mode(clip_mode)
+            self.app_obj.set_video_timestamps_clip_mode(clip_mode)
             self.app_obj.add_temp_stamp_buffer_dict(
                 media_data_obj.dbid,
                 insert_list,
@@ -20288,6 +20289,7 @@ class MainWin(Gtk.ApplicationWindow):
                     insert_list.append(mini_list)
 
             # Update IVs
+            self.app_obj.set_video_timestamps_clip_mode(clip_mode)
             self.app_obj.add_temp_stamp_buffer_dict(
                 dummy_video_obj.dbid,
                 insert_list,
@@ -20315,7 +20317,7 @@ class MainWin(Gtk.ApplicationWindow):
                     insert_list.append(mini_list)
 
             # Update IVs
-            self.app_obj.set_video_timestamps_dl_mode(clip_mode)
+            self.app_obj.set_video_timestamps_clip_mode(clip_mode)
             self.app_obj.add_temp_stamp_buffer_dict(
                 dummy_video_obj.dbid,
                 insert_list,
@@ -20518,6 +20520,7 @@ class MainWin(Gtk.ApplicationWindow):
 
             # Update IVs
             insert_list.insert(0, 'create')
+            self.app_obj.set_video_timestamps_slice_mode(slice_mode)
             self.app_obj.add_temp_slice_buffer_dict(
                 media_data_obj.dbid,
                 insert_list,
@@ -20533,6 +20536,7 @@ class MainWin(Gtk.ApplicationWindow):
         else:
 
             # Update IVs
+            self.app_obj.set_video_timestamps_slice_mode(slice_mode)
             insert_list.insert(0, 'default')
             self.app_obj.add_temp_slice_buffer_dict(
                 media_data_obj.dbid,
@@ -36697,7 +36701,7 @@ class MoveContainerDialogue(Gtk.Dialog):
     # Standard class methods
 
 
-    def __init__(self, main_win_obj, source_obj, dest_obj):
+    def __init__(self, main_win_obj, source_obj, dest_obj=None):
 
         if DEBUG_FUNC_FLAG:
             ttutils.debug_time('mwn 34168 __init__')
@@ -37583,7 +37587,7 @@ class PrepareClipDialogue(Gtk.Dialog):
         #   directly (currently only available for yt-dlp), 'ffmpeg' to
         #   download clips using FFmpeg, or 'create' to create clips using the
         #   already-downloaded video
-        self.clip_mode = self.main_win_obj.app_obj.video_timestamps_dl_mode
+        self.clip_mode = self.main_win_obj.app_obj.video_timestamps_clip_mode
         # Download mode: 'chapters' to download chapters using yt-dlp directly
         #   (when available), 'single' to download/extract a single clip using
         #   specified timestamp(s), 'multiple' to download/extract multiple
@@ -38766,7 +38770,7 @@ class PrepareSliceDialogue(Gtk.Dialog):
         # Slice mode: 'ffmpeg' to remove slices using FFmpeg, or 'create' to
         #   remove slices using the already-downloaded video
         # (These values match those used in mainwin.PrepareClipDialogue)
-        self.slice_mode = 'ffmpeg'
+        self.slice_mode = self.main_win_obj.app_obj.video_timestamps_slice_mode
         # Download mode: 'single' to remove a single slice using specified
         #   timestamps/seconds, 'multiple' to remove multiple slices. Set to
         #   None when self.clip_mode is 'create'

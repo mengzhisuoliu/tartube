@@ -46,7 +46,7 @@ Problems can be reported at `our GitHub page <https://github.com/axcore/tartube/
 
 Stable release: **v2.5.231 (24 May 2026)**
 
-Development release: **v2.5.242 (13 Jul 2026)**
+Development release: **v2.5.250 (21 Sep 2026)**
 
 Official packages (also available from the `Github release page <https://github.com/axcore/tartube/releases>`__):
 
@@ -2722,8 +2722,6 @@ A: **yt-dlp** now requires Deno in order to download YouTube videos. The **Tartu
 A: Necesitamos más traductores.
 
 If you would like to contribute a translation of this project, please read `this document <docs/translate.rst>`__.
-
-Contributions can be made using Tartube's `Weblate page <https://hosted.weblate.org/projects/tartube/>`__, if that is convenient.
 
 8 Contributing
 ==============

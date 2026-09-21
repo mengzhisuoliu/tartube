@@ -2128,9 +2128,21 @@ class TartubeApp(Gtk.Application):
         #   should try to re-extract the timestamps from the metadata or
         #   description files (if none have been extracted so far)
         self.video_timestamps_re_extract_flag = False
-        # Timestamp download mode - 'downloader' to use yt-dlp's
-        #   --download-sections option, 'ffmpeg' to download using FFmpeg
-        self.video_timestamps_dl_mode = 'ffmpeg'
+        # Timestamp download modes (used to download or extract video clips/
+        #   slices)
+        # .video_timestamps_clip_mode is used by mainWin.PrepareClipDialogue;
+        #   it can have the values 'downloader', 'ffmpeg' or 'create'
+        # .video_timestamps_slice_mode is used by mainWin.PrepareSliceDialogue;
+        #   it can have the values 'ffmpeg' of 'create' only
+        # 'downloader' represents using yt-dlp's --download-sections option,
+        #   'ffmpeg' represents a download using FFmpeg, and 'create'
+        #   represents modifying a video that's already been downloaded
+        # These two IVs are linked; changing the value of one automatically
+        #   changes the other, with one exception: when
+        #   .video_timestamps_clip_mode is changed to 'downloader', the value
+        #   of the other IV is not updated
+        self.video_timestamps_clip_mode = 'ffmpeg'
+        self.video_timestamps_slice_mode = 'ffmpeg'
         # When splitting videos, the format for the name of the video clips:
         #   num                 Number
         #   clip                Clip Title
@@ -5348,10 +5360,17 @@ class TartubeApp(Gtk.Application):
             = json_dict['video_timestamps_replace_flag']
             self.video_timestamps_re_extract_flag \
             = json_dict['video_timestamps_re_extract_flag']
-        if version >= 2004292 \
-        and 'video_timestamps_dl_mode' in json_dict:
-            self.video_timestamps_dl_mode \
-            = json_dict['video_timestamps_dl_mode']
+        if version >= 2004292:
+            if 'video_timestamps_dl_mode' in json_dict:
+                self.video_timestamps_clip_mode \
+                = json_dict['video_timestamps_dl_mode']
+                self.video_timestamps_slice_mode \
+                = json_dict['video_timestamps_dl_mode']
+            elif 'video_timestamps_clip_mode' in json_dict:
+                self.video_timestamps_clip_mode \
+                = json_dict['video_timestamps_clip_mode']
+                self.video_timestamps_slice_mode \
+                = json_dict['video_timestamps_slice_mode']
         if version >= 2003181 \
         and 'video_timestamps_extract_json_flag' in json_dict:
             self.split_video_name_mode = json_dict['split_video_name_mode']
@@ -6574,8 +6593,10 @@ class TartubeApp(Gtk.Application):
             self.video_timestamps_replace_flag,
             'video_timestamps_re_extract_flag': \
             self.video_timestamps_re_extract_flag,
-            'video_timestamps_dl_mode': \
-            self.video_timestamps_dl_mode,
+            'video_timestamps_clip_mode': \
+            self.video_timestamps_clip_mode,
+            'video_timestamps_slice_mode': \
+            self.video_timestamps_slice_mode,
             'split_video_name_mode': self.split_video_name_mode,
             'split_video_clips_dir_flag': self.split_video_clips_dir_flag,
             'split_video_subdir_flag': self.split_video_subdir_flag,
@@ -10606,14 +10627,25 @@ class TartubeApp(Gtk.Application):
         # Now check every container which has an external directory set
         for dbid in self.container_reg_dict.keys():
 
-            media_data_obj = self.media_reg_dict[dbid]
-            if media_data_obj.external_dir is not None:
+            # !!! DEBUG: Git #798: temporary workaround for db inconstistencies
+#            media_data_obj = self.media_reg_dict[dbid]
+#            if media_data_obj.external_dir is not None:
+#
+#                if media_data_obj.external_dir in check_dict \
+#                or not self.check_external_dir(media_data_obj.external_dir):
+#
+#                    self.container_unavailable_dict[dbid] = media_data_obj
+#                    check_dict[media_data_obj.external_dir] = None
+            if dbid in self.media_reg_dict:
+                media_data_obj = self.media_reg_dict[dbid]
+                if media_data_obj.external_dir is not None:
 
-                if media_data_obj.external_dir in check_dict \
-                or not self.check_external_dir(media_data_obj.external_dir):
-
-                    self.container_unavailable_dict[dbid] = media_data_obj
-                    check_dict[media_data_obj.external_dir] = None
+                    if media_data_obj.external_dir in check_dict \
+                    or not self.check_external_dir(
+                    media_data_obj.external_dir,
+                    ):
+                        self.container_unavailable_dict[dbid] = media_data_obj
+                        check_dict[media_data_obj.external_dir] = None
 
 
     def check_external_dir(self, dir_path):
@@ -30349,9 +30381,17 @@ class TartubeApp(Gtk.Application):
         self.video_res_default = value
 
 
-    def set_video_timestamps_dl_mode(self, value):
+    def set_video_timestamps_clip_mode(self, value):
 
-        self.video_timestamps_dl_mode = value
+        self.video_timestamps_clip_mode = value
+        if value != 'downloader':
+            self.video_timestamps_slice_mode = value
+
+
+    def set_video_timestamps_slice_mode(self, value):
+
+        self.video_timestamps_slice_mode = value
+        self.video_timestamps_clip_mode = value
 
 
     def set_video_timestamps_extract_descrip_flag(self, flag):

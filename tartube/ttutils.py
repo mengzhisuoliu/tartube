@@ -401,8 +401,9 @@ clip_path=None):
         new_video_obj.set_video_descrip(
             app_obj,
             _('Split from original video') + ' (' \
-            + str(orig_video_obj.dbid) + ')\n' + orig_video_obj.name \
-            + '\n' + orig_video_obj.source,
+            + str(orig_video_obj.dbid) + ')\n' \
+            + (orig_video_obj.name or app_obj.default_video_name) + '\n' \
+            + (orig_video_obj.source or '(no link)'),
             app_obj.main_win_obj.descrip_line_max_len,
         )
 
